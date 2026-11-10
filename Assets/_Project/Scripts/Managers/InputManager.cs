@@ -11,6 +11,8 @@ public class InputManager : MonoBehaviour
     public static Action<Vector2> OnCarrotClickedPosition;
 
     [Header("Data")]
+    private static GameInput.PlayerActions playerActions;
+    private static GameInput.UIActions uiActions;
     private GameInput gameInput;
     private InputAction clickAction;
     private InputAction pointerPositionAction;
@@ -21,6 +23,8 @@ public class InputManager : MonoBehaviour
     {
         mainCam = Camera.main;
         gameInput = new();
+        playerActions = gameInput.Player;
+        uiActions = gameInput.UI;
         clickAction = gameInput.Player.Click;
         pointerPositionAction = gameInput.Player.PointerPosition;
         gameInput.Enable();
@@ -48,6 +52,18 @@ public class InputManager : MonoBehaviour
         gameInput.Disable();
     }
 
+    public static void EnableUIActionsDisablePlayerActions()
+    {
+        playerActions.Disable();
+        uiActions.Enable();
+    }
+
+    public static void EnablePlayerActionsDisableUIActions()
+    {
+        uiActions.Disable();
+        playerActions.Enable();
+    }
+
     private void ClickAction_Performed(InputAction.CallbackContext context)
     {
         ThrowRaycast();
@@ -55,11 +71,17 @@ public class InputManager : MonoBehaviour
 
     private void ThrowRaycast()
     {
+        if (!IsValidScreenPosition(pointerPosition))
+            return;
         RaycastHit2D hit = Physics2D.GetRayIntersection(mainCam.ScreenPointToRay(pointerPosition), 10f);
-
         if (hit.collider == null)
             return;
         OnCarrotClicked?.Invoke();
         OnCarrotClickedPosition?.Invoke(hit.point);
+    }
+
+    private static bool IsValidScreenPosition(Vector2 position)
+    {
+        return float.IsFinite(position.x) && float.IsFinite(position.y);
     }
 }

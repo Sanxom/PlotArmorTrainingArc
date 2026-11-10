@@ -32,6 +32,7 @@ public class CarrotManager : MonoBehaviour
 
     private void Start()
     {
+        AddCarrots(5000);
         InputManager.OnCarrotClicked += CarrotClickedCallback;
         Carrot.OnFrenzyModeStarted += FrenzyModeStartedCallback;
         Carrot.OnFrenzyModeFinished += FrenzyModeFinishedCallback;
@@ -47,6 +48,24 @@ public class CarrotManager : MonoBehaviour
     public int GetCurrentMultiplier()
     {
         return carrotIncrementAmount;
+    }
+
+    public bool TryPurchase(double price)
+    {
+        if (price <= totalCarrotCount)
+        {
+            totalCarrotCount -= price;
+            return true;
+        }
+
+        return false;
+    }
+
+    public void AddCarrots(double value)
+    {
+        totalCarrotCount += value;
+        UpdateCarrotCountText();
+        SaveData();
     }
 
     public void AddCarrots(float value)
